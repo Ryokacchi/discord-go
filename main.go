@@ -1,6 +1,7 @@
 package main
 
 import (
+	functions "discord-go/Functions"
 	"fmt"
 	"log"
 	"os"
@@ -72,6 +73,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to Discord bot: %v", err)
 	}
+
+	functions.PublishCommands(dg)
 
 	exit()
 }
