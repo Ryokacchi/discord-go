@@ -1,0 +1,11 @@
+# Go binary and object files
+*.exe
+*.out
+*.test
+
+# Go workspace files
+bin/
+obj/
+
+# Operating system files
+.DS_Store
