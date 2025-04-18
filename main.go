@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"gopkg.in/ini.v1"
@@ -56,17 +57,56 @@ func initialize(token string) *discordgo.Session {
 	return dg
 }
 
+/** Ready Event */
 func ready(s *discordgo.Session, r *discordgo.Ready) {
 	fmt.Println("Bot successfully connected to Discord.")
 	fmt.Println("Logged in as " + r.User.Username + "!")
+}
+
+/** InteractionCreate Event */
+func interactionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Type == discordgo.InteractionApplicationCommand {
+		commandData := i.ApplicationCommandData()
+
+		if commandData.Name == "ping" {
+			latency := s.HeartbeatLatency()
+
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						{
+							Color:       0x5865F2,
+							Title:       "WebSocket Gecikmesi",
+							Description: "Burada bulunan gecikme değerleri anlık değildir; belirli zaman döngülerinde bir kez alınır ve kaydedilir.",
+							Fields: []*discordgo.MessageEmbedField{
+								{
+									Name:  "WebSocket",
+									Value: fmt.Sprintf("```ansi\n\u001b[2;34m\u001b[1;34m%dms\u001b[0m\u001b[2;34m\u001b[0m\n```", latency.Milliseconds()),
+								},
+							},
+							Footer: &discordgo.MessageEmbedFooter{
+								Text: fmt.Sprintf("%s %d, best discord bot.", s.State.User.Username, time.Now().Year()),
+							},
+						},
+					},
+				},
+			})
+
+			if err != nil {
+				log.Printf("Error responding to command: %v", err)
+			}
+		}
+	}
 }
 
 func main() {
 	cfg := configLoader()
 	dg := initialize(cfg.Section("bot").Key("token").String())
 
-	/** Registers the 'ready' event handler to handle the "ready" event from Discord. */
+	/** Registers an event handler for the specified event. */
 	dg.AddHandler(ready)
+	dg.AddHandler(interactionCreate)
 
 	/** Open the connection to the Discord bot */
 	err := dg.Open()
@@ -74,7 +114,10 @@ func main() {
 		log.Fatalf("Failed to connect to Discord bot: %v", err)
 	}
 
-	functions.PublishCommands(dg)
+	_, err = dg.ApplicationCommandBulkOverwrite(dg.State.Application.ID, "", functions.ApplicationCommands)
+	if err != nil {
+		log.Fatalf("Failed to create application commands: %v", err)
+	}
 
 	exit()
 }
