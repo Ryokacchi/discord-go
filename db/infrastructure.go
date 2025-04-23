@@ -1,8 +1,8 @@
-package database
+package db
 
 import (
 	"context"
-	functions "discord-go/Functions"
+	"discord-go/utils"
 	"fmt"
 	"log"
 	"sync"
@@ -33,7 +33,7 @@ func Ping() time.Duration {
 }
 
 func Connect() *mongo.Client {
-	cfg := functions.ConfigLoader()
+	cfg := utils.ConfigLoader()
 
 	clientOnce.Do(func() {
 		ctx, cancel := Context()
