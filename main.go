@@ -1,6 +1,7 @@
 package main
 
 import (
+	"discord-go/config"
 	"discord-go/db"
 	"discord-go/events"
 	"discord-go/utils"
@@ -37,7 +38,7 @@ func initialize(token string) *discordgo.Session {
 }
 
 func main() {
-	cfg := utils.ConfigLoader()
+	cfg := config.Loader()
 	dg := initialize(cfg.Section("bot").Key("token").String())
 
 	// Registers an event handler for the specified event.
