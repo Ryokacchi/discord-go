@@ -2,6 +2,7 @@ package commands
 
 import (
 	"discord-go/db"
+	"discord-go/views"
 	"fmt"
 	"time"
 
@@ -14,8 +15,11 @@ func Ping(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 		Embeds: &[]*discordgo.MessageEmbed{
 			{
-				Color:       0x5865F2,
-				Title:       "WebSocket Gecikmesi",
+				Color: views.Color,
+				Author: &discordgo.MessageEmbedAuthor{
+					Name:    fmt.Sprintf("%s (@%s) — WebSocket Gecikmesi", i.Member.User.GlobalName, i.Member.User.Username),
+					IconURL: i.Member.User.AvatarURL("128"),
+				},
 				Description: "Burada bulunan gecikme değerleri anlık değildir; belirli zaman döngülerinde bir kez alınır ve kaydedilir.",
 				Fields: []*discordgo.MessageEmbedField{
 					{

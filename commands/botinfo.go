@@ -3,6 +3,7 @@ package commands
 import (
 	"discord-go/db"
 	"discord-go/utils"
+	"discord-go/views"
 	"fmt"
 	"strings"
 	"time"
@@ -20,8 +21,11 @@ func BotInfo(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 		Embeds: &[]*discordgo.MessageEmbed{
 			{
-				Color:       0x5865F2,
-				Title:       "Bot Bilgi",
+				Color: views.Color,
+				Author: &discordgo.MessageEmbedAuthor{
+					Name:    fmt.Sprintf("%s (@%s) — Bot Bilgi", i.Member.User.GlobalName, i.Member.User.Username),
+					IconURL: i.Member.User.AvatarURL("128"),
+				},
 				Description: fmt.Sprintf("%s verileri anlık olarak güncelleme gösterebilir ve tüm kullanıcı gerektiren veriler, kullanıcı kimliğini açığa çıkarmaz.", s.State.User.Username),
 				Fields: []*discordgo.MessageEmbedField{
 					{

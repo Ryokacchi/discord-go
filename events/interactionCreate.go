@@ -2,9 +2,8 @@ package events
 
 import (
 	"discord-go/modules"
-	"discord-go/utils"
+	"discord-go/views"
 	"fmt"
-	"log"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -13,20 +12,12 @@ func InteractionCreate(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if i.Type == discordgo.InteractionApplicationCommand {
 		commandData := i.ApplicationCommandData()
 
-		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 		})
-		if err != nil {
-			log.Printf("Error responding to command: %v", err)
-			return
-		}
-
-		_, err = s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Content: utils.StringPtr("komut yükleniyor"),
+		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+			Embeds: &[]*discordgo.MessageEmbed{views.Loading(i)},
 		})
-		if err != nil {
-			log.Printf("Error responding to command: %v", err)
-		}
 
 		if handler, ok := modules.CommandHandlers[commandData.Name]; ok {
 			handler(s, i)
